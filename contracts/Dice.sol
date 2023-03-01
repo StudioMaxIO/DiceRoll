@@ -11,11 +11,16 @@ abstract contract Dice {
         uint256 value;
         string label;
     }
-    // Mapping from dice name => ... => ...
+    // Mapping from dice name => ...
+    mapping(string => bool) public nameExists;
+    mapping(string => Die) public dice;
+    // from dice name => ... => ...
     //// label => value
     mapping(string => mapping(string => uint256)) public dieValues;
     //// value => label
     mapping(string => mapping(uint256 => string)) public dieLabels;
+
+    string[] _dice;
 
     function createMappedDie(
         Die memory die,
@@ -26,9 +31,20 @@ abstract contract Dice {
             die.values.length == labels.length,
             "label length does not match values length"
         );
+        require(!nameExists[name], "die name must be unique");
         for (uint256 i = 0; i < labels.length; i++) {
             dieValues[name][labels[i]] = die.values[i];
             dieLabels[name][die.values[i]] = labels[i];
+        }
+        dice[name] = die;
+        nameExists[name] = true;
+        _dice.push(name);
+    }
+
+    function getAllDice() public view returns (Die[] memory allDice) {
+        allDice = new Die[](_dice.length);
+        for (uint256 i = 0; i < _dice.length; i++) {
+            allDice[i] = dice[_dice[i]];
         }
     }
 
