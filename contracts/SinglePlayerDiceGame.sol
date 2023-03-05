@@ -4,6 +4,8 @@ pragma solidity ^0.8.9;
 import "./DiceRoll.sol";
 
 contract SinglePlayerDiceGame is DiceRoll {
+    bytes32 public OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
+
     uint256 public entryFee;
     uint256 public operatorFee;
 
@@ -22,6 +24,7 @@ contract SinglePlayerDiceGame is DiceRoll {
     );
 
     constructor(
+        address operator,
         uint32 _diceQuantity,
         uint256 _dieSides, // optional if using default 1-n
         uint256[] memory _dieValues, // overrides diceSides if set
@@ -41,6 +44,7 @@ contract SinglePlayerDiceGame is DiceRoll {
             _stringToUint
         )
     {
+        _setupRole(OPERATOR_ROLE, operator);
         // use values if sent
         uint256[] memory values = _dieValues.length > 0
             ? _dieValues
