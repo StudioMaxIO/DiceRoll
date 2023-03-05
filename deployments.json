@@ -1,21 +1,17 @@
 {
-  "goerli": {
-    "CHAINLINK_VRF_SUBSCRIPTION_ID": "",
-    "CHAINLINK_VRF_COORDINATOR": "",
-    "CHAINLINK_VRF_KEY_HASH": "",
-    "BAND_VRF_PROVIDER": "",
-    "STRING_TO_UINT": "",
+  "fantom_test": {
+    "DICE_ROLL": "",
+    "COLORS_GAME": "",
+    "HIGH_ROLL_GAME": "",
+    "LUCKY_7_GAME": ""
+  },
+  "fantom": {
     "DICE_ROLL": "",
     "COLORS_GAME": "",
     "HIGH_ROLL_GAME": "",
     "LUCKY_7_GAME": ""
   },
   "hh": {
-    "CHAINLINK_VRF_SUBSCRIPTION_ID": "",
-    "CHAINLINK_VRF_COORDINATOR": "",
-    "CHAINLINK_VRF_KEY_HASH": "",
-    "BAND_VRF_PROVIDER": "",
-    "STRING_TO_UINT": "",
     "DICE_ROLL": "",
     "COLORS_GAME": "",
     "HIGH_ROLL_GAME": "",

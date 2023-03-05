@@ -1,0 +1,16 @@
+{
+  "fantom_test": {
+    "CHAINLINK_VRF_SUBSCRIPTION_ID": "",
+    "CHAINLINK_VRF_COORDINATOR": "",
+    "CHAINLINK_VRF_KEY_HASH": "",
+    "BAND_VRF_PROVIDER": "",
+    "STRING_TO_UINT": ""
+  },
+  "fantom": {
+    "CHAINLINK_VRF_SUBSCRIPTION_ID": "",
+    "CHAINLINK_VRF_COORDINATOR": "",
+    "CHAINLINK_VRF_KEY_HASH": "",
+    "BAND_VRF_PROVIDER": "",
+    "STRING_TO_UINT": ""
+  }
+}
