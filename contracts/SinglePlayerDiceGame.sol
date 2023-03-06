@@ -60,7 +60,7 @@ contract SinglePlayerDiceGame is DiceRoll {
     }
 
     // Public
-    function play() public {
+    function play() external payable {
         require(
             !hasActiveRollID[_msgSender()],
             "player has active roll, cannot play again until resolved"
@@ -68,13 +68,14 @@ contract SinglePlayerDiceGame is DiceRoll {
         require(_senderCanPlay(_msgSender()), "sender not authorized to play");
         // request roll
         lastRollID[_msgSender()] = requestRoll(
+            _msgSender(),
             diceQuantity,
             _die.values.length
         );
         hasActiveRollID[_msgSender()] = true;
     }
 
-    function poolBalance() public view returns (uint256) {
+    function poolBalance() external view returns (uint256) {
         return
             address(this).balance > operatorBalance
                 ? address(this).balance - operatorBalance
@@ -82,12 +83,12 @@ contract SinglePlayerDiceGame is DiceRoll {
     }
 
     // Handle DiceRoll roll delivered
-    function rollDelivered(uint256 rollID, uint256[] memory randomness)
+    function rollDelivered(uint256 rollID, uint256[] memory diceValues)
         internal
         override
     {
         address roller = rollRequests[rollID].roller;
-        if (_rollMeetsWinCondition(rollID)) {
+        if (_rollMeetsWinCondition(diceValues)) {
             _payoutPool(roller);
         }
         hasActiveRollID[roller] = false;
@@ -99,7 +100,7 @@ contract SinglePlayerDiceGame is DiceRoll {
         return true;
     }
 
-    function _rollMeetsWinCondition(uint256 rollID)
+    function _rollMeetsWinCondition(uint256[] memory diceValues)
         internal
         virtual
         returns (bool)
@@ -111,7 +112,7 @@ contract SinglePlayerDiceGame is DiceRoll {
     // Internal
     function _payoutPool(address to) internal {
         // pay out balance of contract
-        uint256 payoutAmount = poolBalance();
+        uint256 payoutAmount = this.poolBalance();
         (bool sent, ) = to.call{value: payoutAmount}("");
         require(sent, "Failed to withdraw");
         emit PoolPayout(to, payoutAmount, block.timestamp);

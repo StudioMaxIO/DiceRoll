@@ -22,23 +22,19 @@ abstract contract Dice {
 
     string[] _dice;
 
-    function createMappedDie(
-        Die memory die,
-        string memory name,
-        string[] memory labels
-    ) internal {
+    function createMappedDie(Die memory die, string[] memory labels) internal {
         require(
             die.values.length == labels.length,
             "label length does not match values length"
         );
-        require(!nameExists[name], "die name must be unique");
+        require(!nameExists[die.name], "die name must be unique");
         for (uint256 i = 0; i < labels.length; i++) {
-            dieValues[name][labels[i]] = die.values[i];
-            dieLabels[name][die.values[i]] = labels[i];
+            dieValues[die.name][labels[i]] = die.values[i];
+            dieLabels[die.name][die.values[i]] = labels[i];
         }
-        dice[name] = die;
-        nameExists[name] = true;
-        _dice.push(name);
+        dice[die.name] = die;
+        nameExists[die.name] = true;
+        _dice.push(die.name);
     }
 
     function getAllDice() public view returns (Die[] memory allDice) {

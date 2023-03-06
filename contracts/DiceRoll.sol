@@ -51,16 +51,17 @@ contract DiceRoll is Dice, RandomnessConsumer {
         )
     {}
 
-    function requestRoll(uint32 numDice, uint256 diceSides)
-        internal
-        returns (uint256 rollID)
-    {
+    function requestRoll(
+        address roller,
+        uint32 numDice,
+        uint256 diceSides
+    ) internal returns (uint256 rollID) {
         _setNumWords(numDice);
-        rollID = _requestRoll(msg.sender, numDice, diceSides);
+        rollID = _requestRoll(roller, numDice, diceSides);
     }
 
     // Override this function to react when dice roll is delivered
-    function rollDelivered(uint256 rollID, uint256[] memory randomness)
+    function rollDelivered(uint256 rollID, uint256[] memory diceValues)
         internal
         virtual
     {}
