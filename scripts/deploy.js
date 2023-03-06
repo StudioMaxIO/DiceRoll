@@ -1,8 +1,9 @@
 const hre = require("hardhat");
 
 async function main() {
-  //
-  // set multiplayer dice game as GAME_ROLE on DiceGameHelpers
+  // Deploy Lucky 7
+  // Deploy Colors
+  // Deploy High Roll
 }
 
 main().catch((error) => {
