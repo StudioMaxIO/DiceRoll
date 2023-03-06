@@ -3,7 +3,7 @@ pragma solidity ^0.8.9;
 
 import "./DiceRoll.sol";
 
-contract SinglePlayerDiceGame is DiceRoll {
+contract MultiPlayerDiceGame is DiceRoll {
     bytes32 public OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
 
     uint256 public entryFee;
@@ -180,11 +180,10 @@ contract SinglePlayerDiceGame is DiceRoll {
     }
 
     // Functions to override
-    function _senderCanPlay(address sender, uint256 gameID)
-        internal
-        virtual
-        returns (bool)
-    {
+    function _senderCanPlay(
+        address, /*sender*/
+        uint256 /*gameID*/
+    ) internal virtual returns (bool) {
         return true;
     }
 

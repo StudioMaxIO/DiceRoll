@@ -56,6 +56,9 @@ contract SinglePlayerDiceGame is DiceRoll {
             }
         }
         _die = Dice.Die({values: values, name: _dieName});
+        if (_dieLabels.length > 0) {
+            createMappedDie(_die, _dieLabels);
+        }
         diceQuantity = _diceQuantity;
     }
 
@@ -95,16 +98,16 @@ contract SinglePlayerDiceGame is DiceRoll {
     }
 
     // Functions to override
-    function _senderCanPlay(address sender) internal virtual returns (bool) {
+    function _senderCanPlay(
+        address /*sender*/
+    ) internal virtual returns (bool) {
         // return true if sender allowed to play, false if not allowed
         return true;
     }
 
-    function _rollMeetsWinCondition(uint256[] memory diceValues)
-        internal
-        virtual
-        returns (bool)
-    {
+    function _rollMeetsWinCondition(
+        uint256[] memory /*diceValues*/
+    ) internal virtual returns (bool) {
         //return true if win condition, false if loses
         return false;
     }
