@@ -18,6 +18,9 @@ const network = hre.network.name;
 const fs = require("fs");
 
 async function main() {
+  // Fees
+  let entryFee = "0.1";
+  let operatorFee = "0.01";
   // values needed for deployments
   const accounts = await ethers.provider.listAccounts();
   let operator = accounts[0];
@@ -56,7 +59,39 @@ async function main() {
   console.log("Lucky 7 deployed to", lucky7.address);
   deployments[network].LUCKY_7_GAME = lucky7.address;
 
-  // TODO: set fees, currently set to 0
+  let tx = await lucky7.setEntryFee(hre.ethers.utils.parseEther(entryFee));
+  await tx.wait();
+  tx = await lucky7.setOperatorFee(hre.ethers.utils.parseEther(operatorFee));
+
+  //
+  // Colors
+  //
+  diceQuantity = 1;
+  dieName = "colors";
+  const Colors = await hre.ethers.getContractFactory("Colors");
+
+  console.log("Deploying Colors...");
+  const colorLabels = ["Red", "Orange", "Yellow", "Green", "Blue", "Purple"];
+  const colors = await Colors.deploy(
+    operator,
+    diceQuantity,
+    dieSides,
+    dieValues,
+    dieName,
+    colorLabels,
+    vrfSubscriptionID,
+    vrfCoordinator,
+    vrfKeyHash,
+    bandVRFProvider,
+    stringToUint
+  );
+  await colors.deployed();
+  console.log("Colors deployed to", colors.address);
+  deployments[network].COLORS_GAME = colors.address;
+
+  tx = await colors.setEntryFee(hre.ethers.utils.parseEther(entryFee));
+  await tx.wait();
+  tx = await colors.setOperatorFee(hre.ethers.utils.parseEther(operatorFee));
 
   try {
     const path = `${process.cwd()}/deployments.json`;

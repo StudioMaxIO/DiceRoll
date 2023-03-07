@@ -16,6 +16,7 @@ contract SinglePlayerDiceGame is DiceRoll {
 
     mapping(address => uint256) public lastRollID;
     mapping(address => bool) public hasActiveRollID;
+    mapping(uint256 => bool) public winningRolls;
 
     event PoolPayout(
         address indexed recipient,
@@ -98,6 +99,7 @@ contract SinglePlayerDiceGame is DiceRoll {
         RollRequest memory rr = rollRequests[rollID];
         address roller = rr.roller;
         if (_rollMeetsWinCondition(rr)) {
+            winningRolls[rollID] = true;
             _payoutPool(roller);
         }
         hasActiveRollID[roller] = false;

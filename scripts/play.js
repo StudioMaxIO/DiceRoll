@@ -16,10 +16,9 @@ async function attachGameContracts() {
   const Lucky7 = await ethers.getContractFactory("Lucky7");
   LUCKY_7 = Lucky7.attach(deployments[network].LUCKY_7_GAME);
 
-  /*
   const Colors = await ethers.getContractFactory("Colors");
   COLORS = Colors.attach(deployments[network].COLORS_GAME);
-
+  /*
   const HighRoll = await ethers.getContractFactory("HighRoll");
   HIGH_ROLL = HighRoll.attach(deployments[network].HIGH_ROLL_GAME);
   */
@@ -63,7 +62,7 @@ async function playLucky7() {
     type: "list",
     name: "gameChoice",
     message: "What would you like to do?",
-    choices: ["Roll", "Check Roll", "Exit"],
+    choices: ["Roll", "Check Roll", "Check Pool", "Exit"],
     default: "Roll"
   };
   questions.push(gameChoice);
@@ -76,6 +75,9 @@ async function playLucky7() {
     case "Check Roll":
       await checkRollLucky7();
       break;
+    case "Check Pool":
+      await checkPoolLucky7();
+      break;
     case "Exit":
     default:
       await mainMenu();
@@ -84,7 +86,9 @@ async function playLucky7() {
 }
 
 async function rollLucky7() {
-  let tx = await LUCKY_7.play();
+  // get entry fee
+  let entryFee = await LUCKY_7.entryFee();
+  let tx = await LUCKY_7.play({ value: entryFee });
   await tx.wait();
   let useMock = await LUCKY_7.useMockVRF();
   if (useMock) {
@@ -119,13 +123,89 @@ async function checkRollLucky7() {
   await playLucky7();
 }
 
+async function checkPoolLucky7() {
+  const poolBalance = await LUCKY_7.poolBalance();
+  console.log("Pool balance:", hre.ethers.utils.formatEther(poolBalance));
+  await playLucky7();
+}
+
 // Colors
 async function playColors() {
-  console.log("Playing Colors...");
+  console.log("\nColors\n");
 
-  // Options:
-  // Roll, Check Roll, Exit
-  await mainMenu();
+  let questions = [];
+  const gameChoice = {
+    type: "list",
+    name: "gameChoice",
+    message: "What would you like to do?",
+    choices: ["Roll", "Check Roll", "Check Pool", "Exit"],
+    default: "Roll"
+  };
+  questions.push(gameChoice);
+  let answers = await inquirer.prompt(questions);
+
+  switch (answers.gameChoice) {
+    case "Roll":
+      await rollColors();
+      break;
+    case "Check Roll":
+      await checkRollColors();
+      break;
+    case "Check Pool":
+      await checkPoolColors();
+      break;
+    case "Exit":
+    default:
+      await mainMenu();
+      break;
+  }
+}
+
+async function rollColors() {
+  // get entry fee
+  let entryFee = await COLORS.entryFee();
+  let winningColor = await COLORS.currentColor();
+  console.log("Winning color:", winningColor);
+  let tx = await COLORS.play({ value: entryFee });
+  await tx.wait();
+  let useMock = await COLORS.useMockVRF();
+  if (useMock) {
+    tx = await COLORS.fulfillMockRandomness();
+    tx.wait();
+  }
+  console.log("Roll requested. Check roll to see if you won.");
+  await playColors();
+}
+
+async function checkRollColors() {
+  const lastRollID = await COLORS.lastRollID(player);
+  if (Number(lastRollID) > 0) {
+    // console.log("Last roll ID:", lastRollID.toString());
+    const hasActiveRoll = await COLORS.hasActiveRollID(player);
+    if (hasActiveRoll) {
+      console.log("Roll has been requested. Awaiting randomness...");
+    } else {
+      let playerRoll = await COLORS.rollRequests(lastRollID);
+      let rollTotal = playerRoll.diceTotal;
+      let colorRolled = await COLORS.dieLabels("colors", rollTotal);
+      console.log("Color rolled:", colorRolled);
+      const winner = await COLORS.winningRolls(lastRollID);
+      if (winner) {
+        console.log("Congratulations, you won!");
+      } else {
+        console.log("Sorry, didn't win this time. Try again.");
+      }
+    }
+  } else {
+    console.log("No rolls for player.");
+  }
+  await playColors();
+}
+
+async function checkPoolColors() {
+  const poolBalance = await COLORS.poolBalance();
+  console.log("Pool balance:", hre.ethers.utils.formatEther(poolBalance));
+  await playColors();
 }
 
 // High Roll

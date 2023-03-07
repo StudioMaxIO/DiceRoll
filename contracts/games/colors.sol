@@ -4,12 +4,13 @@ pragma solidity ^0.8.9;
 import "../SinglePlayerDiceGame.sol";
 
 // About game:
-// Player pays entry fee and rolls 2 dice
-// If dice value == 7, player gets prize pool, otherwise prize pool grows
-// Every day the winning color changes
-// Roll that color on that day and win a prize
+// Winning color changes each time someone rolls it.
+// Roll color to win the pool
 
 contract Colors is SinglePlayerDiceGame {
+    string[] _colors = ["Red", "Orange", "Yellow", "Green", "Blue", "Purple"];
+    uint8 _colorIndex;
+
     constructor(
         address operator,
         uint32 _diceQuantity,
@@ -38,6 +39,10 @@ contract Colors is SinglePlayerDiceGame {
         )
     {}
 
+    function currentColor() public view returns (string memory color) {
+        color = _colors[_colorIndex];
+    }
+
     // override functions for custom behavior
     // This is all we need to create a new game
 
@@ -46,6 +51,20 @@ contract Colors is SinglePlayerDiceGame {
         override
         returns (bool)
     {
-        return false;
+        bool winner = false;
+        uint256 diceValueOfColor = _colorIndex + 1;
+        winner = rollRequest.diceTotal == diceValueOfColor;
+        if (winner) {
+            _updateColor();
+        }
+        return winner;
+    }
+
+    function _updateColor() internal {
+        if (_colorIndex < (_colors.length - 1)) {
+            ++_colorIndex;
+        } else {
+            _colorIndex = 0;
+        }
     }
 }
