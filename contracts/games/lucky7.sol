@@ -4,8 +4,6 @@ pragma solidity ^0.8.9;
 import "../SinglePlayerDiceGame.sol";
 
 // About Game:
-// Player pays entry fee and rolls 2 dice
-// If dice value == 7, player gets prize pool, otherwise prize pool grows
 
 contract Lucky7 is SinglePlayerDiceGame {
     constructor(
@@ -38,15 +36,16 @@ contract Lucky7 is SinglePlayerDiceGame {
 
     // override functions for custom behavior
     // This is all we need to create a new game
-    function _senderCanPlay(address sender) internal override returns (bool) {
-        return true;
-    }
-
-    function _rollMeetsWinCondition(uint256[] memory diceValues)
+    function _rollMeetsWinCondition(RollRequest memory rollRequest)
         internal
+        pure
         override
         returns (bool)
     {
-        return false;
+        if (rollRequest.diceTotal == 7) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

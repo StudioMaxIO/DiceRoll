@@ -4,6 +4,7 @@
   "description": "Blockchain dice rolling engine",
   "main": "index.js",
   "scripts": {
+    "deploy": "npx hardhat run scripts/deploy.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Max Meier",

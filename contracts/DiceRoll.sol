@@ -25,6 +25,7 @@ contract DiceRoll is Dice, RandomnessConsumer {
         bool exists;
         uint256[] diceValues;
         uint256 diceSides;
+        uint256 diceTotal;
     }
 
     // mapping from request id
@@ -80,6 +81,7 @@ contract DiceRoll is Dice, RandomnessConsumer {
 
         rollRequests[rollID].fulfilled = true;
         rollRequests[rollID].diceValues = diceValues;
+        rollRequests[rollID].diceTotal = sumValues(diceValues);
 
         rollDelivered(rollID, diceValues);
         emit RollDelivered(
@@ -103,8 +105,20 @@ contract DiceRoll is Dice, RandomnessConsumer {
             fulfilled: false,
             exists: true,
             diceValues: new uint256[](numDice),
-            diceSides: diceSides
+            diceSides: diceSides,
+            diceTotal: 0
         });
         emit RollRequested(roller, numDice, diceSides, block.timestamp);
+    }
+
+    // Helper
+    function sumValues(uint256[] memory diceValues)
+        internal
+        pure
+        returns (uint256 total)
+    {
+        for (uint256 i = 0; i < diceValues.length; i++) {
+            total += diceValues[i];
+        }
     }
 }

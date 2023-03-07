@@ -1,11 +1,11 @@
 {
-  "fantom_test": {
+  "ftm_test": {
     "DICE_ROLL": "",
     "COLORS_GAME": "",
     "HIGH_ROLL_GAME": "",
     "LUCKY_7_GAME": ""
   },
-  "fantom": {
+  "ftm": {
     "DICE_ROLL": "",
     "COLORS_GAME": "",
     "HIGH_ROLL_GAME": "",
@@ -15,6 +15,6 @@
     "DICE_ROLL": "",
     "COLORS_GAME": "",
     "HIGH_ROLL_GAME": "",
-    "LUCKY_7_GAME": ""
+    "LUCKY_7_GAME": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
   }
 }

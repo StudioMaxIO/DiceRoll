@@ -40,11 +40,8 @@ contract Colors is SinglePlayerDiceGame {
 
     // override functions for custom behavior
     // This is all we need to create a new game
-    function _senderCanPlay(address sender) internal override returns (bool) {
-        return true;
-    }
 
-    function _rollMeetsWinCondition(uint256[] memory diceValues)
+    function _rollMeetsWinCondition(RollRequest memory rollRequest)
         internal
         override
         returns (bool)

@@ -69,6 +69,11 @@ contract SinglePlayerDiceGame is DiceRoll {
             "player has active roll, cannot play again until resolved"
         );
         require(_senderCanPlay(_msgSender()), "sender not authorized to play");
+        require(msg.value >= entryFee, "Entry fee below minimum");
+
+        // take operator fee
+        operatorBalance += operatorFee;
+
         // request roll
         lastRollID[_msgSender()] = requestRoll(
             _msgSender(),
@@ -90,26 +95,30 @@ contract SinglePlayerDiceGame is DiceRoll {
         internal
         override
     {
-        address roller = rollRequests[rollID].roller;
-        if (_rollMeetsWinCondition(diceValues)) {
+        RollRequest memory rr = rollRequests[rollID];
+        address roller = rr.roller;
+        if (_rollMeetsWinCondition(rr)) {
             _payoutPool(roller);
         }
         hasActiveRollID[roller] = false;
     }
 
-    // Functions to override
-    function _senderCanPlay(
-        address /*sender*/
-    ) internal virtual returns (bool) {
-        // return true if sender allowed to play, false if not allowed
-        return true;
-    }
-
+    // Override
     function _rollMeetsWinCondition(
-        uint256[] memory /*diceValues*/
+        RollRequest memory /*rollRequest*/
     ) internal virtual returns (bool) {
         //return true if win condition, false if loses
         return false;
+    }
+
+    // Optional Override
+    function _senderCanPlay(address sender) internal virtual returns (bool) {
+        // return true if sender allowed to play, false if not allowed
+        if (sender != address(0)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     // Internal
@@ -123,10 +132,17 @@ contract SinglePlayerDiceGame is DiceRoll {
 
     // Admin
     function setEntryFee(uint256 fee) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        if (operatorFee > 0) {
+            require(
+                fee > operatorFee,
+                "entry fee must be greater than operator fee"
+            );
+        }
         entryFee = fee;
     }
 
     function setOperatorFee(uint256 fee) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(entryFee > fee, "Operator fee must be less than entry fee");
         operatorFee = fee;
     }
 
