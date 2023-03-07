@@ -98,14 +98,15 @@ async function rollLucky7() {
 async function checkRollLucky7() {
   const lastRollID = await LUCKY_7.lastRollID(player);
   if (Number(lastRollID) > 0) {
-    console.log("Last roll ID:", lastRollID.toString());
+    // console.log("Last roll ID:", lastRollID.toString());
     const hasActiveRoll = await LUCKY_7.hasActiveRollID(player);
     if (hasActiveRoll) {
       console.log("Roll has been requested. Awaiting randomness...");
     } else {
       let playerRoll = await LUCKY_7.rollRequests(lastRollID);
-      console.log("Player Roll:", playerRoll);
-      console.log("Values:", playerRoll.diceValues);
+      console.log("Roll Total:", playerRoll.diceTotal.toString());
+      let rollValues = await LUCKY_7.rollValues(lastRollID);
+      console.log("Dice Values:", rollValues.toString());
       if (Number(playerRoll.diceTotal) == 7) {
         console.log("Congratulations, you won!");
       } else {

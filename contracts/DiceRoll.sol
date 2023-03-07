@@ -52,6 +52,15 @@ contract DiceRoll is Dice, RandomnessConsumer {
         )
     {}
 
+    // roll info
+    function rollValues(uint256 rollID)
+        external
+        view
+        returns (uint256[] memory)
+    {
+        return rollRequests[rollID].diceValues;
+    }
+
     function requestRoll(
         address roller,
         uint32 numDice,
