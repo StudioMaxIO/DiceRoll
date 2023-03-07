@@ -2,8 +2,30 @@ const hre = require("hardhat");
 const deployments = require("../deployments.json");
 const network = hre.network.name;
 const inquirer = require("inquirer");
-const { create } = require("domain");
 
+// Player Info
+let player;
+
+// Game Contracts
+let LUCKY_7;
+let COLORS;
+let HIGH_ROLL;
+
+// Setup
+async function attachGameContracts() {
+  const Lucky7 = await ethers.getContractFactory("Lucky7");
+  LUCKY_7 = Lucky7.attach(deployments[network].LUCKY_7_GAME);
+
+  /*
+  const Colors = await ethers.getContractFactory("Colors");
+  COLORS = Colors.attach(deployments[network].COLORS_GAME);
+
+  const HighRoll = await ethers.getContractFactory("HighRoll");
+  HIGH_ROLL = HighRoll.attach(deployments[network].HIGH_ROLL_GAME);
+  */
+}
+
+// Main Menu
 async function mainMenu() {
   let questions = [];
   const whichGame = {
@@ -32,28 +54,82 @@ async function mainMenu() {
   }
 }
 
+// Lucky 7
 async function playLucky7() {
-  console.log("Playing Lucky 7...");
+  console.log("\nLucky 7\n");
 
-  // Options:
-  // Roll, Exit
+  let questions = [];
+  const gameChoice = {
+    type: "list",
+    name: "gameChoice",
+    message: "What would you like to do?",
+    choices: ["Roll", "Check Roll", "Exit"],
+    default: "Roll"
+  };
+  questions.push(gameChoice);
+  let answers = await inquirer.prompt(questions);
 
-  await mainMenu();
+  switch (answers.gameChoice) {
+    case "Roll":
+      await rollLucky7();
+      break;
+    case "Check Roll":
+      await checkRollLucky7();
+      break;
+    case "Exit":
+    default:
+      await mainMenu();
+      break;
+  }
 }
 
+async function rollLucky7() {
+  let tx = await LUCKY_7.play();
+  await tx.wait();
+  let useMock = await LUCKY_7.useMockVRF();
+  if (useMock) {
+    tx = await LUCKY_7.fulfillMockRandomness();
+    tx.wait();
+  }
+  console.log("Roll requested. Check roll to see if you won.");
+  await playLucky7();
+}
+
+async function checkRollLucky7() {
+  const lastRollID = await LUCKY_7.lastRollID(player);
+  if (Number(lastRollID) > 0) {
+    console.log("Last roll ID:", lastRollID.toString());
+    const hasActiveRoll = await LUCKY_7.hasActiveRollID(player);
+    if (hasActiveRoll) {
+      console.log("Roll has been requested. Awaiting randomness...");
+    } else {
+      let playerRoll = await LUCKY_7.rollRequests(lastRollID);
+      console.log("Player Roll:", playerRoll);
+      console.log("Values:", playerRoll.diceValues);
+      if (Number(playerRoll.diceTotal) == 7) {
+        console.log("Congratulations, you won!");
+      } else {
+        console.log("Sorry, didn't win this time. Try again.");
+      }
+    }
+  } else {
+    console.log("No rolls for player.");
+  }
+  await playLucky7();
+}
+
+// Colors
 async function playColors() {
   console.log("Playing Colors...");
 
   // Options:
-  // Roll, Exit
+  // Roll, Check Roll, Exit
   await mainMenu();
 }
 
+// High Roll
 async function playHighRoll() {
   console.log("Playing High Roll...");
-
-  // Options:
-  // enter game, Find open game, create game, find my games, exit to main menu
   let questions = [];
   const options = {
     type: "list",
@@ -126,6 +202,9 @@ async function startHighRollGame(gameID) {
 }
 
 async function main() {
+  const accounts = await ethers.provider.listAccounts();
+  player = accounts[0];
+  await attachGameContracts();
   await mainMenu();
 }
 

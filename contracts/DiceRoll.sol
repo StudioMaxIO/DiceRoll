@@ -29,9 +29,9 @@ contract DiceRoll is Dice, RandomnessConsumer {
     }
 
     // mapping from request id
-    mapping(uint256 => uint256) rollIDs;
+    mapping(uint256 => uint256) public rollIDs;
     // mapping from roll ID
-    mapping(uint256 => RollRequest) rollRequests;
+    mapping(uint256 => RollRequest) public rollRequests;
 
     // internal id for tracking unique roll requests
     uint256 _rollID;
@@ -76,12 +76,14 @@ contract DiceRoll is Dice, RandomnessConsumer {
         super.fulfillRandomness(_requestId, _randomness, _seed, _time);
         // turn each random number into dice value
         uint256 rollID = rollIDs[_requestId];
+        RollRequest storage rr = rollRequests[rollID];
         uint256[] memory diceValues = new uint256[](_randomness.length);
-        // use randomness to calculate dice values
-
-        rollRequests[rollID].fulfilled = true;
-        rollRequests[rollID].diceValues = diceValues;
-        rollRequests[rollID].diceTotal = sumValues(diceValues);
+        // set to value 1 - num of sides
+        for (uint256 i = 0; i < rr.diceValues.length; i++) {
+            rr.diceValues[i] = (_randomness[i] % rr.diceSides) + 1;
+        }
+        rr.fulfilled = true;
+        rr.diceTotal = sumValues(rr.diceValues);
 
         rollDelivered(rollID, diceValues);
         emit RollDelivered(

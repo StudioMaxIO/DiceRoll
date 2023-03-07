@@ -56,6 +56,8 @@ async function main() {
   console.log("Lucky 7 deployed to", lucky7.address);
   deployments[network].LUCKY_7_GAME = lucky7.address;
 
+  // TODO: set fees, currently set to 0
+
   try {
     const path = `${process.cwd()}/deployments.json`;
     fs.writeFileSync(path, JSON.stringify(deployments, null, 4));
