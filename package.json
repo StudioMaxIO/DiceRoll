@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "deploy": "npx hardhat run scripts/deploy.js",
+    "play": "npx hardhat run scripts/play.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Max Meier",
@@ -27,6 +28,7 @@
     "hardhat": "^2.12.7",
     "hardhat-contract-sizer": "^2.8.0",
     "hardhat-gas-reporter": "^1.0.8",
+    "inquirer": "8.0.0",
     "solidity-coverage": "^0.8.0",
     "typechain": "^8.1.0"
   }
