@@ -13,13 +13,15 @@ module.exports = {
         "0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a"
       ]
     },
-    ftm: {
-      url: "",
-      accounts: []
-    },
     ftm_test: {
-      url: "",
-      accounts: []
+      url: process.env.RPC_URL_FANTOM_TEST,
+      accounts: [process.env.PRIVATE_KEY_FANTOM_TEST],
+      chainId: 4002
+    },
+    ftm: {
+      url: process.env.RPC_URL_FANTOM,
+      accounts: [process.env.PRIVATE_KEY_FANTOM],
+      chainId: 250
     }
   },
   solidity: {

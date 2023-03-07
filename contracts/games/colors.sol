@@ -15,7 +15,7 @@ contract Colors is SinglePlayerDiceGame {
         address operator,
         uint32 _diceQuantity,
         uint256 _dieSides, // optional if using default 1-n
-        uint256[] memory _dieValues, // overrides diceSides if set
+        uint256[] memory _dieValues, // overrides dieSides if set
         string memory _dieName, // optional
         string[] memory _dieLabels, // optional
         uint64 _vrfSubscriptionID,
