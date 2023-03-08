@@ -399,10 +399,10 @@
     "@ethersproject/properties" "^5.7.0"
     "@ethersproject/strings" "^5.7.0"
 
-"@luckymachines/game-core@^0.0.37":
-  version "0.0.37"
-  resolved "https://registry.yarnpkg.com/@luckymachines/game-core/-/game-core-0.0.37.tgz#914eb52b1ea511a87813b00389af1070f1a3c927"
-  integrity sha512-MfgUL8kflV+I5Dtel0jSbGSMgFzJsA4hUoQ+GiZOF5wSxNAp/kF7/6v2d2AIXFEuN25QFNscueJMUffmzOGnkw==
+"@luckymachines/game-core@0.0.38":
+  version "0.0.38"
+  resolved "https://registry.yarnpkg.com/@luckymachines/game-core/-/game-core-0.0.38.tgz#bdc2720813f1564ab38494eff4cac0c5f74a3db5"
+  integrity sha512-0WtDJtwmr5+K6aO/FDOip82YR/Wn1hETRo9eBAW4EzjAvD2g8AZzKNU++zl6FfAwVofndAw6dwSf/DGwdjN5kQ==
   dependencies:
     "@chainlink/contracts" "^0.5.1"
     "@openzeppelin/contracts" "^4.6.0"
