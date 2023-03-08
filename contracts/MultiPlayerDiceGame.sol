@@ -104,6 +104,10 @@ contract MultiPlayerDiceGame is DiceRoll {
         });
         games[_gameID] = newGame;
         _allGames.push(newGame);
+        if (!entryFeePaid[_gameID][_msgSender()]) {
+            require(msg.value >= entryFee, "minimum entry fee not sent");
+            entryFeePaid[_gameID][_msgSender()] = true;
+        }
         _enterPlayer(_gameID, _msgSender());
     }
 

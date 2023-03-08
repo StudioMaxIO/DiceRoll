@@ -280,7 +280,10 @@ async function createGame() {
   questions.push(totalPlayers);
   let answers = await inquirer.prompt(questions);
   console.log("Creating game...");
-  let tx = await HIGH_ROLL.createGame(answers.totalPlayers);
+  let entryFee = await HIGH_ROLL.entryFee();
+  let tx = await HIGH_ROLL.createGame(answers.totalPlayers, {
+    value: entryFee
+  });
   await tx.wait();
 
   // get latest game
@@ -303,7 +306,8 @@ async function startHighRollGame(gameID) {
   let isRegistered = await HIGH_ROLL.isInGame(gameID, player);
   if (!isRegistered) {
     try {
-      let entryFee = await HIGH_ROLL.entryFee();
+      let entryFeePaid = await HIGH_ROLL.entryFeePaid(gameID, player);
+      let entryFee = !entryFeePaid ? 0 : await HIGH_ROLL.entryFee();
       let tx = await HIGH_ROLL.joinGame(gameID, { value: entryFee });
       await tx.wait();
       isRegistered = await HIGH_ROLL.isInGame(gameID, player);
