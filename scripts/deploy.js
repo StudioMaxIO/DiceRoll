@@ -49,6 +49,7 @@ async function main() {
   let tx = await lucky7.setEntryFee(hre.ethers.utils.parseEther(entryFee));
   await tx.wait();
   tx = await lucky7.setOperatorFee(hre.ethers.utils.parseEther(operatorFee));
+  await tx.wait();
 
   //
   // Colors
@@ -79,6 +80,7 @@ async function main() {
   tx = await colors.setEntryFee(hre.ethers.utils.parseEther(entryFee));
   await tx.wait();
   tx = await colors.setOperatorFee(hre.ethers.utils.parseEther(operatorFee));
+  await tx.wait();
 
   //
   // High Roll
@@ -108,6 +110,7 @@ async function main() {
   tx = await highRoll.setEntryFee(hre.ethers.utils.parseEther(entryFee));
   await tx.wait();
   tx = await highRoll.setOperatorFee(hre.ethers.utils.parseEther(operatorFee));
+  await tx.wait();
 
   try {
     const path = `${process.cwd()}/deployments.json`;
