@@ -1,5 +1,6 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("hardhat-contract-sizer");
+require("@nomiclabs/hardhat-etherscan");
 require("dotenv").config();
 
 /** @type import('hardhat/config').HardhatUserConfig */
@@ -32,6 +33,11 @@ module.exports = {
         enabled: true,
         runs: 200
       }
+    }
+  },
+  etherscan: {
+    apiKey: {
+      ftmTestnet: process.env.ETHERSCAN_API_FANTOM_TEST
     }
   }
 };

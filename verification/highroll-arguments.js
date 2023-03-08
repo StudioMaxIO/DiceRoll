@@ -1,0 +1,13 @@
+module.exports = [
+  "0x3804f754C18520726f3FC7eEd8E160dC79d4B7f8",
+  1,
+  6,
+  [],
+  "d6",
+  ["Red", "Orange", "Yellow", "Green", "Blue", "Purple"],
+  "175",
+  "0xbd13f08b8352A3635218ab9418E340c60d6Eb418",
+  "0x121a143066e0f2f08b620784af77cccb35c6242460b4a8ee251b4b416abaebd4",
+  "0x0000000000000000000000000000000000000000",
+  "0xeAC65Da5B3C4f25C8ea3C49A65DE1a4bbDC55A07"
+];
