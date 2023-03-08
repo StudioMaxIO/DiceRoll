@@ -97,7 +97,8 @@ contract MultiPlayerDiceGame is DiceRoll {
             gameID: _gameID,
             gameSize: totalPlayers,
             players: new address[](0),
-            poolValue: ((entryFee * totalPlayers) - operatorFee),
+            poolValue: ((entryFee * totalPlayers) -
+                (operatorFee * totalPlayers)),
             complete: false,
             winner: address(0),
             paid: false
@@ -106,7 +107,8 @@ contract MultiPlayerDiceGame is DiceRoll {
         _allGames.push(newGame);
         if (!entryFeePaid[_gameID][_msgSender()]) {
             require(msg.value >= entryFee, "minimum entry fee not sent");
-            entryFeePaid[_gameID][_msgSender()] = true;
+            operatorBalance += operatorFee;
+            _poolBalances[_gameID] = msg.value - operatorFee;
         }
         _enterPlayer(_gameID, _msgSender());
     }
@@ -174,7 +176,8 @@ contract MultiPlayerDiceGame is DiceRoll {
             );
             if (!entryFeePaid[gameID][_msgSender()]) {
                 require(msg.value >= entryFee, "minimum entry fee not sent");
-                entryFeePaid[gameID][_msgSender()] = true;
+                operatorBalance += operatorFee;
+                _poolBalances[gameID] = msg.value - operatorFee;
             }
             _enterPlayer(gameID, _msgSender());
         }
@@ -188,7 +191,8 @@ contract MultiPlayerDiceGame is DiceRoll {
     function joinGame(uint256 gameID) public payable {
         if (!entryFeePaid[gameID][_msgSender()]) {
             require(msg.value >= entryFee, "minimum entry fee not sent");
-            entryFeePaid[gameID][_msgSender()] = true;
+            operatorBalance += operatorFee;
+            _poolBalances[gameID] = msg.value - operatorFee;
         }
         _enterPlayer(gameID, _msgSender());
     }
@@ -222,10 +226,8 @@ contract MultiPlayerDiceGame is DiceRoll {
 
     // Internal
     function _enterPlayer(uint256 gameID, address playerAddress) internal {
-        if (
-            !isInGame[gameID][playerAddress] &&
-            entryFeePaid[gameID][playerAddress]
-        ) {
+        entryFeePaid[_gameID][_msgSender()] = true;
+        if (!isInGame[gameID][playerAddress]) {
             GameInfo storage game = games[gameID];
             game.players.push(playerAddress);
             isInGame[gameID][playerAddress] = true;
