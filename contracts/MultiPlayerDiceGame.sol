@@ -259,15 +259,14 @@ contract MultiPlayerDiceGame is DiceRoll {
         operatorFee = fee;
     }
 
-    // TODO: override after randomness consumer update with virtual function...
-    // function withdraw(uint256 amount, address payable to)
-    //     public
-    //     override
-    //     onlyRole(DEFAULT_ADMIN_ROLE)
-    // {
-    //     (bool sent, ) = to.call{value: amount}("");
-    //     require(sent, "Failed to withdraw");
-    // }
+    function withdraw(
+        uint256 amount,
+        address payable to
+    ) public override onlyRole(OPERATOR_ROLE) {
+        require(amount <= operatorBalance);
+        (bool sent, ) = to.call{value: amount}("");
+        require(sent, "Failed to withdraw");
+    }
 }
 
 // the base contract for multi-player example dice games
