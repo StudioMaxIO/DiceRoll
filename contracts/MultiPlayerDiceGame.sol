@@ -24,6 +24,10 @@ contract MultiPlayerDiceGame is DiceRoll {
 
     // mapping from game ID => player address
     mapping(uint256 => mapping(address => bool)) public isInGame;
+    mapping(uint256 => mapping(address => bool)) public finishedGame; // finshed whether win or lose
+
+    // mapping from player address
+    mapping(address => uint256[]) playerGames;
 
     // current value for setting new game IDs
     uint256 _gameID;
@@ -127,6 +131,12 @@ contract MultiPlayerDiceGame is DiceRoll {
         }
     }
 
+    function findGamesForPlayer(
+        address playerAddress
+    ) public view returns (uint256[] memory) {
+        return playerGames[playerAddress];
+    }
+
     function play(uint256 gameID) external payable {
         //
         require(
@@ -146,7 +156,7 @@ contract MultiPlayerDiceGame is DiceRoll {
             );
             gameRollIDs[gameID] = requestRoll(
                 address(this),
-                diceQuantity,
+                uint32(game.players.length),
                 _die.values.length
             );
             gameIDsFromRollID[gameRollIDs[gameID]] = gameID;
@@ -166,12 +176,12 @@ contract MultiPlayerDiceGame is DiceRoll {
     }
 
     // Handle DiceRoll roll delivered
-    function rollDelivered(uint256 rollID, uint256[] memory diceValues)
-        internal
-        override
-    {
-        _updateGameFromRoll(diceValues);
+    function rollDelivered(
+        uint256 rollID,
+        uint256[] memory diceValues
+    ) internal override {
         uint256 gameID = gameIDsFromRollID[rollID];
+        _updateGameFromRoll(diceValues, rollID);
         GameInfo memory game = games[gameID];
         if (game.complete && game.winner != address(0)) {
             _payoutPool(game);
@@ -181,16 +191,16 @@ contract MultiPlayerDiceGame is DiceRoll {
 
     // Functions to override
     function _senderCanPlay(
-        address, /*sender*/
+        address /*sender*/,
         uint256 /*gameID*/
     ) internal virtual returns (bool) {
         return true;
     }
 
-    function _updateGameFromRoll(uint256[] memory diceValues)
-        internal
-        virtual
-    {}
+    function _updateGameFromRoll(
+        uint256[] memory diceValues,
+        uint256 gameID
+    ) internal virtual {}
 
     // Internal
     function _enterPlayer(uint256 gameID, address playerAddress) internal {
@@ -198,6 +208,7 @@ contract MultiPlayerDiceGame is DiceRoll {
             GameInfo storage game = games[gameID];
             game.players.push(playerAddress);
             isInGame[gameID][playerAddress] = true;
+            playerGames[playerAddress].push(gameID);
         }
     }
 
@@ -211,10 +222,17 @@ contract MultiPlayerDiceGame is DiceRoll {
 
     // Admin
     function setEntryFee(uint256 fee) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        if (operatorFee > 0) {
+            require(
+                fee > operatorFee,
+                "entry fee must be greater than operator fee"
+            );
+        }
         entryFee = fee;
     }
 
     function setOperatorFee(uint256 fee) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(entryFee > fee, "Operator fee must be less than entry fee");
         operatorFee = fee;
     }
 

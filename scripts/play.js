@@ -2,6 +2,9 @@ const hre = require("hardhat");
 const deployments = require("../deployments.json");
 const network = hre.network.name;
 const inquirer = require("inquirer");
+const {
+  latest
+} = require("@nomicfoundation/hardhat-network-helpers/dist/src/helpers/time");
 
 // Player Info
 let player;
@@ -18,10 +21,9 @@ async function attachGameContracts() {
 
   const Colors = await ethers.getContractFactory("Colors");
   COLORS = Colors.attach(deployments[network].COLORS_GAME);
-  /*
+
   const HighRoll = await ethers.getContractFactory("HighRoll");
   HIGH_ROLL = HighRoll.attach(deployments[network].HIGH_ROLL_GAME);
-  */
 }
 
 // Main Menu
@@ -248,7 +250,8 @@ async function playHighRoll() {
 }
 
 async function findOpenGames() {
-  console.log("Find open games...");
+  const games = await HIGH_ROLL.findGame();
+  console.log("Open games:", games);
   await playHighRoll();
 }
 
@@ -266,20 +269,85 @@ async function enterGame() {
 }
 
 async function createGame() {
-  console.log("Create game...");
-  await playHighRoll();
+  let questions = [];
+  const totalPlayers = {
+    type: "input",
+    name: "totalPlayers",
+    message: "Number of players:",
+    default: "2"
+  };
+  questions.push(totalPlayers);
+  let answers = await inquirer.prompt(questions);
+  console.log("Creating game...");
+  let tx = await HIGH_ROLL.createGame(answers.totalPlayers);
+  await tx.wait();
+
+  // get latest game
+  const allPlayerGames = await HIGH_ROLL.findGamesForPlayer(player);
+  const latestGameID = allPlayerGames[allPlayerGames.length - 1];
+  console.log("Created game with ID:", latestGameID);
+  console.log("Starting game...");
+  await startHighRollGame(gameID);
 }
 
 async function findMyGames() {
-  console.log("Find my games...");
+  const allPlayerGames = await HIGH_ROLL.findGamesForPlayer(player);
+  console.log("My games:", allPlayerGames);
   await playHighRoll();
 }
 
 async function startHighRollGame(gameID) {
   console.log("Start high roll game:", gameID);
-  await playHighRoll();
-  // Options
-  // Roll, Exit
+
+  // choices: ["Roll", "Check Roll", "Check Pool", "Exit"],
+  let questions = [];
+  const options = {
+    type: "list",
+    name: "gameOptions",
+    message: "What would you like to do?",
+    choices: ["Game Status", "Roll", "Check Pool", "Exit"],
+    default: "Game Status"
+  };
+  questions.push(options);
+  let answers = await inquirer.prompt(questions);
+  switch (answers.gameOptions) {
+    case "Game Status":
+      await gameStatusHighRoll(gameID);
+      break;
+    case "Roll":
+      await rollHighRoll(gameID);
+      break;
+    case "Check Pool":
+      await checkPoolHighRoll(gameID);
+      break;
+    case "Exit":
+    default:
+      await playHighRoll();
+      break;
+  }
+}
+
+async function gameStatusHighRoll(gameID) {
+  let game = await HIGH_ROLL.games(gameID);
+  console.log("Game", gameID);
+  console.log(game);
+  await startHighRollGame();
+}
+
+async function rollHighRoll(gameID) {
+  console.log("Requesting roll...");
+  let tx = await HIGH_ROLL.play(gameID);
+  await tx.wait();
+  console.log("Roll requested. Check game status for updates.");
+  await startHighRollGame();
+}
+
+async function checkPoolHighRoll(gameID) {
+  let poolBalance = await HIGH_ROLL.poolBalance();
+  console.log(
+    `Game ${gameID} pool balance:${hre.ethers.utils.formatEther(poolBalance)}`
+  );
+  await startHighRollGame();
 }
 
 async function main() {

@@ -1,16 +1,3 @@
-// 1.
-// Deploy Lucky 7
-// set entry fee
-// set operator fee
-// 2.
-// Deploy Colors
-// set entry fee
-// set operator fee
-// 3.
-// Deploy High Roller
-// set entry fee
-// set operator fee
-
 const hre = require("hardhat");
 const deployments = require("../deployments.json");
 const vrf = require("../VRF.json");
@@ -92,6 +79,35 @@ async function main() {
   tx = await colors.setEntryFee(hre.ethers.utils.parseEther(entryFee));
   await tx.wait();
   tx = await colors.setOperatorFee(hre.ethers.utils.parseEther(operatorFee));
+
+  //
+  // High Roll
+  //
+  diceQuantity = 1;
+  dieName = "d6";
+  const HighRoll = await hre.ethers.getContractFactory("HighRoll");
+
+  console.log("Deploying High Roll...");
+  const highRoll = await HighRoll.deploy(
+    operator,
+    diceQuantity,
+    dieSides,
+    dieValues,
+    dieName,
+    colorLabels,
+    vrfSubscriptionID,
+    vrfCoordinator,
+    vrfKeyHash,
+    bandVRFProvider,
+    stringToUint
+  );
+  await highRoll.deployed();
+  console.log("High Roll deployed to", highRoll.address);
+  deployments[network].HIGH_ROLL_GAME = highRoll.address;
+
+  tx = await highRoll.setEntryFee(hre.ethers.utils.parseEther(entryFee));
+  await tx.wait();
+  tx = await highRoll.setOperatorFee(hre.ethers.utils.parseEther(operatorFee));
 
   try {
     const path = `${process.cwd()}/deployments.json`;

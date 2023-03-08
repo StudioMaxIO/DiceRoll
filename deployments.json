@@ -1,20 +1,17 @@
 {
     "ftm_test": {
-        "DICE_ROLL": "",
         "COLORS_GAME": "",
         "HIGH_ROLL_GAME": "",
         "LUCKY_7_GAME": ""
     },
     "ftm": {
-        "DICE_ROLL": "",
         "COLORS_GAME": "",
         "HIGH_ROLL_GAME": "",
         "LUCKY_7_GAME": ""
     },
     "hh": {
-        "DICE_ROLL": "",
-        "COLORS_GAME": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-        "HIGH_ROLL_GAME": "",
-        "LUCKY_7_GAME": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+        "COLORS_GAME": "0x851356ae760d987E095750cCeb3bC6014560891C",
+        "HIGH_ROLL_GAME": "0x998abeb3E57409262aE5b751f60747921B33613E",
+        "LUCKY_7_GAME": "0x9E545E3C0baAB3E08CdfD552C960A1050f373042"
     }
 }

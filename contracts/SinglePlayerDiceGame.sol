@@ -92,10 +92,10 @@ contract SinglePlayerDiceGame is DiceRoll {
     }
 
     // Handle DiceRoll roll delivered
-    function rollDelivered(uint256 rollID, uint256[] memory diceValues)
-        internal
-        override
-    {
+    function rollDelivered(
+        uint256 rollID,
+        uint256[] memory /*diceValues*/
+    ) internal override {
         RollRequest memory rr = rollRequests[rollID];
         address roller = rr.roller;
         if (_rollMeetsWinCondition(rr)) {
