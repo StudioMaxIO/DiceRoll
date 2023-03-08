@@ -25,7 +25,7 @@ contract MultiPlayerDiceGame is DiceRoll {
     // mapping from game ID => player address
     mapping(uint256 => mapping(address => bool)) public isInGame;
     mapping(uint256 => mapping(address => bool)) public finishedGame; // finshed whether win or lose
-
+    mapping(uint256 => mapping(address => bool)) public entryFeePaid;
     // mapping from player address
     mapping(address => uint256[]) playerGames;
 
@@ -102,6 +102,7 @@ contract MultiPlayerDiceGame is DiceRoll {
             winner: address(0),
             paid: false
         });
+        games[_gameID] = newGame;
         _allGames.push(newGame);
         _enterPlayer(_gameID, _msgSender());
     }
@@ -167,6 +168,10 @@ contract MultiPlayerDiceGame is DiceRoll {
                 game.players.length < game.gameSize,
                 "Cannot join game. Game is full."
             );
+            if (!entryFeePaid[gameID][_msgSender()]) {
+                require(msg.value >= entryFee, "minimum entry fee not sent");
+                entryFeePaid[gameID][_msgSender()] = true;
+            }
             _enterPlayer(gameID, _msgSender());
         }
     }
@@ -176,7 +181,11 @@ contract MultiPlayerDiceGame is DiceRoll {
     }
 
     // join game without rolling
-    function joinGame(uint256 gameID) public {
+    function joinGame(uint256 gameID) public payable {
+        if (!entryFeePaid[gameID][_msgSender()]) {
+            require(msg.value >= entryFee, "minimum entry fee not sent");
+            entryFeePaid[gameID][_msgSender()] = true;
+        }
         _enterPlayer(gameID, _msgSender());
     }
 
@@ -209,7 +218,10 @@ contract MultiPlayerDiceGame is DiceRoll {
 
     // Internal
     function _enterPlayer(uint256 gameID, address playerAddress) internal {
-        if (!isInGame[gameID][playerAddress]) {
+        if (
+            !isInGame[gameID][playerAddress] &&
+            entryFeePaid[gameID][playerAddress]
+        ) {
             GameInfo storage game = games[gameID];
             game.players.push(playerAddress);
             isInGame[gameID][playerAddress] = true;

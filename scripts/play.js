@@ -286,7 +286,7 @@ async function createGame() {
   // get latest game
   const allPlayerGames = await HIGH_ROLL.findGamesForPlayer(player);
   const latestGameID = allPlayerGames[allPlayerGames.length - 1];
-  console.log("Created game with ID:", latestGameID);
+  console.log("Created game with ID:", latestGameID.toString());
   console.log("Starting game...");
   await startHighRollGame(latestGameID);
 }
@@ -299,11 +299,12 @@ async function findMyGames() {
 
 async function startHighRollGame(gameID) {
   // check if player is in game, if not try to register
-  console.log("Playing High Roll, game", gameID);
+  console.log(`\nHigh Roll, game ${gameID.toString()}\n`);
   let isRegistered = await HIGH_ROLL.isInGame(gameID, player);
   if (!isRegistered) {
     try {
-      let tx = await HIGH_ROLL.joinGame(gameID);
+      let entryFee = await HIGH_ROLL.entryFee();
+      let tx = await HIGH_ROLL.joinGame(gameID, { value: entryFee });
       await tx.wait();
       isRegistered = await HIGH_ROLL.isInGame(gameID, player);
     } catch (err) {
@@ -345,25 +346,40 @@ async function startHighRollGame(gameID) {
 
 async function gameStatusHighRoll(gameID) {
   let game = await HIGH_ROLL.games(gameID);
-  console.log("Game", gameID);
+  // console.log("Game", gameID);
   console.log(game);
-  await startHighRollGame();
+  console.log("Game ID:", game.gameID.toString());
+  console.log("Game Size:", game.gameSize.toString());
+  console.log("Pool Value:", hre.ethers.utils.formatEther(game.poolValue));
+  console.log("Game Complete:", game.complete);
+  console.log(
+    "Winner:",
+    game.winner == "0x0000000000000000000000000000000000000000"
+      ? "Game in progress..."
+      : game.winner
+  );
+  console.log("Winner Paid:", game.paid);
+  await startHighRollGame(gameID);
 }
 
 async function rollHighRoll(gameID) {
   console.log("Requesting roll...");
-  let tx = await HIGH_ROLL.play(gameID);
-  await tx.wait();
-  console.log("Roll requested. Check game status for updates.");
-  await startHighRollGame();
+  try {
+    let tx = await HIGH_ROLL.play(gameID);
+    await tx.wait();
+    console.log("Roll requested. Check game status for updates.");
+  } catch (err) {
+    console.log(err.reason);
+  }
+  await startHighRollGame(gameID);
 }
 
 async function checkPoolHighRoll(gameID) {
-  let poolBalance = await HIGH_ROLL.poolBalance();
+  let poolBalance = await HIGH_ROLL.poolBalance(gameID);
   console.log(
     `Game ${gameID} pool balance:${hre.ethers.utils.formatEther(poolBalance)}`
   );
-  await startHighRollGame();
+  await startHighRollGame(gameID);
 }
 
 async function main() {
