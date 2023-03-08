@@ -3,7 +3,7 @@ pragma solidity ^0.8.9;
 
 import "../SinglePlayerDiceGame.sol";
 
-// About Game:
+// About Game: Roll a 7 and win the pool!
 
 contract Lucky7 is SinglePlayerDiceGame {
     constructor(
@@ -36,12 +36,9 @@ contract Lucky7 is SinglePlayerDiceGame {
 
     // override functions for custom behavior
     // This is all we need to create a new game
-    function _rollMeetsWinCondition(RollRequest memory rollRequest)
-        internal
-        pure
-        override
-        returns (bool)
-    {
+    function _rollMeetsWinCondition(
+        RollRequest memory rollRequest
+    ) internal pure override returns (bool) {
         if (rollRequest.diceTotal == 7) {
             return true;
         } else {

@@ -43,14 +43,20 @@ contract Colors is SinglePlayerDiceGame {
         color = _colors[_colorIndex];
     }
 
+    function _updateColor() internal {
+        if (_colorIndex < (_colors.length - 1)) {
+            ++_colorIndex;
+        } else {
+            _colorIndex = 0;
+        }
+    }
+
     // override functions for custom behavior
     // This is all we need to create a new game
 
-    function _rollMeetsWinCondition(RollRequest memory rollRequest)
-        internal
-        override
-        returns (bool)
-    {
+    function _rollMeetsWinCondition(
+        RollRequest memory rollRequest
+    ) internal override returns (bool) {
         bool winner = false;
         uint256 diceValueOfColor = _colorIndex + 1;
         winner = rollRequest.diceTotal == diceValueOfColor;
@@ -58,13 +64,5 @@ contract Colors is SinglePlayerDiceGame {
             _updateColor();
         }
         return winner;
-    }
-
-    function _updateColor() internal {
-        if (_colorIndex < (_colors.length - 1)) {
-            ++_colorIndex;
-        } else {
-            _colorIndex = 0;
-        }
     }
 }
