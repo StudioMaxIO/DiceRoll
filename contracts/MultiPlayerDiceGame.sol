@@ -17,7 +17,7 @@ contract MultiPlayerDiceGame is DiceRoll {
     mapping(uint256 => uint256) _poolBalances;
     mapping(uint256 => uint256) public gameRollIDs;
     mapping(uint256 => bool) public hasActiveRoll;
-    mapping(uint256 => GameInfo) games;
+    mapping(uint256 => GameInfo) public games;
 
     // mapping from roll ID
     mapping(uint256 => uint256) gameIDsFromRollID;
@@ -173,6 +173,11 @@ contract MultiPlayerDiceGame is DiceRoll {
 
     function poolBalance(uint256 gameID) external view returns (uint256) {
         return _poolBalances[gameID];
+    }
+
+    // join game without rolling
+    function joinGame(uint256 gameID) public {
+        _enterPlayer(gameID, _msgSender());
     }
 
     // Handle DiceRoll roll delivered

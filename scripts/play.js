@@ -28,6 +28,7 @@ async function attachGameContracts() {
 
 // Main Menu
 async function mainMenu() {
+  console.log("\nMain Menu\n");
   let questions = [];
   const whichGame = {
     type: "list",
@@ -64,7 +65,7 @@ async function playLucky7() {
     type: "list",
     name: "gameChoice",
     message: "What would you like to do?",
-    choices: ["Roll", "Check Roll", "Check Pool", "Exit"],
+    choices: ["Roll", "Check Roll", "Check Pool", "Main Menu"],
     default: "Roll"
   };
   questions.push(gameChoice);
@@ -80,7 +81,7 @@ async function playLucky7() {
     case "Check Pool":
       await checkPoolLucky7();
       break;
-    case "Exit":
+    case "Main Menu":
     default:
       await mainMenu();
       break;
@@ -140,7 +141,7 @@ async function playColors() {
     type: "list",
     name: "gameChoice",
     message: "What would you like to do?",
-    choices: ["Roll", "Check Roll", "Check Pool", "Exit"],
+    choices: ["Roll", "Check Roll", "Check Pool", "Main Menu"],
     default: "Roll"
   };
   questions.push(gameChoice);
@@ -156,7 +157,7 @@ async function playColors() {
     case "Check Pool":
       await checkPoolColors();
       break;
-    case "Exit":
+    case "Main Menu":
     default:
       await mainMenu();
       break;
@@ -212,7 +213,7 @@ async function checkPoolColors() {
 
 // High Roll
 async function playHighRoll() {
-  console.log("Playing High Roll...");
+  console.log("\nHigh Roll\n");
   let questions = [];
   const options = {
     type: "list",
@@ -287,7 +288,7 @@ async function createGame() {
   const latestGameID = allPlayerGames[allPlayerGames.length - 1];
   console.log("Created game with ID:", latestGameID);
   console.log("Starting game...");
-  await startHighRollGame(gameID);
+  await startHighRollGame(latestGameID);
 }
 
 async function findMyGames() {
@@ -297,33 +298,48 @@ async function findMyGames() {
 }
 
 async function startHighRollGame(gameID) {
-  console.log("Start high roll game:", gameID);
+  // check if player is in game, if not try to register
+  console.log("Playing High Roll, game", gameID);
+  let isRegistered = await HIGH_ROLL.isInGame(gameID, player);
+  if (!isRegistered) {
+    try {
+      let tx = await HIGH_ROLL.joinGame(gameID);
+      await tx.wait();
+      isRegistered = await HIGH_ROLL.isInGame(gameID, player);
+    } catch (err) {
+      console.log("Error joining game:");
+      console.log(err.message);
+    }
+  }
 
-  // choices: ["Roll", "Check Roll", "Check Pool", "Exit"],
-  let questions = [];
-  const options = {
-    type: "list",
-    name: "gameOptions",
-    message: "What would you like to do?",
-    choices: ["Game Status", "Roll", "Check Pool", "Exit"],
-    default: "Game Status"
-  };
-  questions.push(options);
-  let answers = await inquirer.prompt(questions);
-  switch (answers.gameOptions) {
-    case "Game Status":
-      await gameStatusHighRoll(gameID);
-      break;
-    case "Roll":
-      await rollHighRoll(gameID);
-      break;
-    case "Check Pool":
-      await checkPoolHighRoll(gameID);
-      break;
-    case "Exit":
-    default:
-      await playHighRoll();
-      break;
+  if (isRegistered) {
+    let questions = [];
+    const options = {
+      type: "list",
+      name: "gameOptions",
+      message: "What would you like to do?",
+      choices: ["Game Status", "Roll", "Check Pool", "Exit"],
+      default: "Game Status"
+    };
+    questions.push(options);
+    let answers = await inquirer.prompt(questions);
+    switch (answers.gameOptions) {
+      case "Game Status":
+        await gameStatusHighRoll(gameID);
+        break;
+      case "Roll":
+        await rollHighRoll(gameID);
+        break;
+      case "Check Pool":
+        await checkPoolHighRoll(gameID);
+        break;
+      case "Exit":
+      default:
+        await playHighRoll();
+        break;
+    }
+  } else {
+    await playHighRoll();
   }
 }
 
